@@ -1,0 +1,36 @@
+# Original report, presentations and raw files. Kept locally, not published.
+originals/
+
+# macOS and Windows clutter
+.DS_Store
+Thumbs.db
+
+# Microsoft Office lock files
+~$*
+
+# Python
+__pycache__/
+*.pyc
+
+# Build output
+build/
+*.o
+a.out
+
+# Videos stay out of the repo, they are linked from Google Drive
+*.mov
+*.MOV
+*.mp4
+
+# Editor settings
+.vscode/
+.idea/
+
+# Files the programs write when they run
+myodom.txt
+EnvironmentMap.txt
+trajectory1.csv
+TrajData.csv
+VelData.csv
+laserData.csv
+laserMapData.csv
