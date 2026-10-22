@@ -1,4 +1,4 @@
-// Stopper: laser guided drive from the home corner to the charger (ROS2, C++).
+// Stopper: landmark based navigation from the home corner to the charger (ROS2, C++).
 //
 // The TurtleBot starts in the corner of the simulated room and has to reach
 // the charging station on the other side without hitting the pillars. I did
@@ -16,8 +16,8 @@
 // room coordinates (which draws the map), the robot's trajectory, and its
 // speed over time.
 //
-// This file goes in a ROS2 C++ package that depends on rclcpp, geometry_msgs,
-// sensor_msgs and nav_msgs. See the README for the build steps.
+// The package.xml and CMakeLists.txt at the top of the repo build this node
+// with colcon. See the README for the steps.
 
 #include <chrono>
 #include <functional>
@@ -51,8 +51,10 @@ public:
     Stopper() : Node("stopper")
     {
         publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+        // The scan topic is published best effort, so subscribe with the
+        // sensor data QoS profile or no scans arrive
         laserScan_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-            "scan", 10, std::bind(&Stopper::scanCallback, this, std::placeholders::_1));
+            "scan", rclcpp::SensorDataQoS(), std::bind(&Stopper::scanCallback, this, std::placeholders::_1));
         odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
             "odom", 10, std::bind(&Stopper::odomCallback, this, std::placeholders::_1));
     }

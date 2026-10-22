@@ -10,7 +10,7 @@ Four programs I wrote for the TurtleBot3 Burger, two in Python on ROS2 and two i
 - **Laser scanner navigation.** The robot drives forward and checks the 60 degree cone in front of it. Anything closer than 0.5 m makes it stop and turn away from the nearer side. Running it with Cartographer and RViz open builds a map of the arena as it goes.
 - **Odometry simulation in C++.** Two differential drive robots start at the same point and heading with different wheel speeds. The program steps their kinematics 100 times and writes both paths to a CSV, which shows one curving right and the other curving left.
 - **Environment map in C++.** Writes a point cloud of a 2.5 m square room with four pillars, a charging station and a square robot, ready to plot.
-- **Laser guided drive to the charger.** A ROS2 C++ node that takes the simulated robot from the corner to the charger through the pillars using a six stage state machine, while logging the laser beams, the map points, the trajectory and the speed to CSV files.
+- **Landmark based navigation to the charger.** A ROS2 C++ node that takes the simulated robot from the corner to the charger through the pillars, using laser distances to known landmarks to step through a six stage state machine, while logging the laser beams, the map points, the trajectory and the speed to CSV files.
 
 ## My role
 
@@ -46,9 +46,9 @@ The map is just a text file of x y points. Each pillar and the charger is a circ
 
 ![The environment map plotted as a scatter chart](media/figures/environment-map-plot.png)
 
-### Drive to the charger (cpp/robot_stopper_node.cpp)
+### Landmark based navigation to the charger (cpp/robot_stopper_node.cpp)
 
-The node reads eight laser beams at 45 degree spacing and runs a state machine. Stage 1 drives at 0.5 m/s until the front beam sees the first pillar at 1.3 m. Stage 2 curves right at 0.3 m/s until the front left beam opens past 1.43 m. Stage 3 drives until the front beam reads 0.6 m. Stage 4 curves right again until the front right beam drops under 0.32 m. Stage 5 creeps at 0.1 m/s until the front beam reads 0.43 m, and stage 6 stops at the charger. The landmark distances came from trial runs and from reading the logged laser data. Adding the three rear beams at 135, 180 and 225 degrees made the map log noticeably more complete.
+The node navigates by landmarks: each pillar and wall the robot passes has a known laser distance, and reaching that distance moves the robot to the next stage. It reads eight laser beams at 45 degree spacing, subscribing with the ROS2 sensor data QoS profile so it matches the best effort scan topic. Stage 1 drives at 0.5 m/s until the front beam sees the first pillar at 1.3 m. Stage 2 curves right at 0.3 m/s until the front left beam opens past 1.43 m. Stage 3 drives until the front beam reads 0.6 m. Stage 4 curves right again until the front right beam drops under 0.32 m. Stage 5 creeps at 0.1 m/s until the front beam reads 0.43 m, and stage 6 stops at the charger. The landmark distances came from trial runs and from reading the logged laser data. Adding the three rear beams at 135, 180 and 225 degrees made the map log noticeably more complete.
 
 Every scan is written to laserData.csv, and each beam is converted into room coordinates using the robot's pose and written to laserMapData.csv, which plots as a map. The odometry callback logs the trajectory and the current speed so the whole run can be graphed.
 
@@ -90,12 +90,21 @@ Open trajectory1.csv or EnvironmentMap.txt in a spreadsheet and plot the columns
 
 ### Charger node
 
-Drop robot_stopper_node.cpp into a ROS2 C++ package whose package.xml and CMakeLists.txt depend on rclcpp, geometry_msgs, sensor_msgs and nav_msgs, build it with colcon, launch the Gazebo room, then run the node. The four CSV logs appear in the directory you ran it from.
+The repo is a ROS2 package, so it builds with colcon. Clone it into the src folder of a workspace, then from the workspace root:
+
+```bash
+colcon build --packages-select ros2_mobile_robotics
+source install/setup.bash
+ros2 run ros2_mobile_robotics robot_stopper_node
+```
+
+Launch the Gazebo room first. The four CSV logs appear in the directory you ran the node from.
 
 ## What's in this repo
 
 - `python/` the two ROS2 Python nodes.
 - `cpp/` the two standalone C++ programs and the ROS2 C++ node.
+- `package.xml` and `CMakeLists.txt` the ROS2 package files that build the charger node with colcon.
 - `media/photos/` the TurtleBot in the arena.
 - `media/figures/` the plots and screenshots of the runs.
 
