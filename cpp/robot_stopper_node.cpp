@@ -75,6 +75,14 @@ private:
     double laser_landmark5 = 0.43;
 
     int stage = 1;          // where we are in the state machine
+
+    // The highest beam index read is 315, so a scan needs at least 316 readings
+    static constexpr size_t MIN_SCAN_READINGS = 316;
+
+    // Safe stop: if no scan arrives for this long the robot stops
+    static constexpr double SCAN_TIMEOUT_S = 1.0;
+    bool haveScan = false;
+    std::chrono::steady_clock::time_point lastScanTime;
     int laser_index = 0;    // counts scans so the log lines can be matched up
 
     // one beam at each of eight directions round the robot
@@ -154,6 +162,18 @@ void Stopper::odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom)
 // Reads the eight beams, logs them, builds the map, and runs the state machine
 void Stopper::scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr scan)
 {
+    // A short scan would make the fixed beam indexes below read past the end
+    if (scan->ranges.size() < MIN_SCAN_READINGS)
+    {
+        RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 2000,
+                             "Scan has %zu readings, need %zu. Stopping.", scan->ranges.size(), MIN_SCAN_READINGS);
+        moveStop();
+        return;
+    }
+
+    haveScan = true;
+    lastScanTime = std::chrono::steady_clock::now();
+
     frontRange = scan->ranges[0];
     mleftRange = scan->ranges[45];
     leftRange = scan->ranges[90];
@@ -263,6 +283,13 @@ void Stopper::startMoving()
     while (rclcpp::ok())
     {
         rclcpp::spin_some(shared_from_this());
+
+        // Safe stop: no fresh scan for a second means the robot is driving
+        // blind, so stop until scans come back
+        double sinceScan = std::chrono::duration<double>(std::chrono::steady_clock::now() - lastScanTime).count();
+        if (!haveScan || sinceScan > SCAN_TIMEOUT_S)
+            moveStop();
+
         loop_rate.sleep();
     }
 

@@ -22,9 +22,9 @@ All of this is my own work. I wrote every line of the Python and C++, ran the ro
 
 The node subscribes to the odom topic and publishes velocity commands every 0.3 s. It converts the orientation quaternion to a heading in degrees and runs a seven step sequence: forward until x passes 1 m, turn until the heading passes 90 degrees, forward until y passes 1 m, turn until the heading wraps past 180, back along x, turn until minus 90, back along y, stop. The heading wrap at 180 degrees is handled by checking both sides of it.
 
-Every tick the x, y and heading are appended to myodom.txt. I ran two trials at different speeds, loaded the files into Excel and both plotted as a near perfect square. On the real robot the start heading has to be lined up exactly so the first corner lands where it should, and the run takes longer than in simulation because of the floor. The odometry error grew on every turn, which is the usual encoder drift, and the TurtleBot's Kalman filter fusing the encoders with its IMU is what keeps it as accurate as it is.
+Every tick the x, y and heading are appended to myodom.txt. I logged two runs on the real robot and plotted them against the 1 m target square. Test 1 logged the first two sides and reached the far corner within 4.5 cm of (1, 1). Test 2 logged the full loop and finished 0.30 m from where it started. On the real robot the start heading has to be lined up exactly so the first corner lands where it should, and the run takes longer than in simulation because of the floor. The odometry error grew on every turn, which is the usual encoder drift, and the TurtleBot's Kalman filter fusing the encoders with its IMU is what keeps it as accurate as it is.
 
-![Odometry log from a real run plotted in Excel](media/figures/square-path-odometry-plot.png)
+![Both real odometry runs plotted as X against Y on equal axes, with the 1 m target square and the final position error](media/figures/square-path-odometry-plot.png)
 
 ### Laser navigation (python/laser_navigation.py)
 
@@ -48,7 +48,26 @@ The map is just a text file of x y points. Each pillar and the charger is a circ
 
 ### Landmark based navigation to the charger (cpp/robot_stopper_node.cpp)
 
-The node navigates by landmarks: each pillar and wall the robot passes has a known laser distance, and reaching that distance moves the robot to the next stage. It reads eight laser beams at 45 degree spacing, subscribing with the ROS2 sensor data QoS profile so it matches the best effort scan topic. Stage 1 drives at 0.5 m/s until the front beam sees the first pillar at 1.3 m. Stage 2 curves right at 0.3 m/s until the front left beam opens past 1.43 m. Stage 3 drives until the front beam reads 0.6 m. Stage 4 curves right again until the front right beam drops under 0.32 m. Stage 5 creeps at 0.1 m/s until the front beam reads 0.43 m, and stage 6 stops at the charger. The landmark distances came from trial runs and from reading the logged laser data. Adding the three rear beams at 135, 180 and 225 degrees made the map log noticeably more complete.
+The node navigates by landmarks: each pillar and wall the robot passes has a known laser distance, and reaching that distance moves the robot to the next stage. It reads eight laser beams at 45 degree spacing, subscribing with the ROS2 sensor data QoS profile so it matches the best effort scan topic. Stage 1 drives at 0.5 m/s until the front beam sees the first pillar at 1.3 m. Stage 2 curves right at 0.3 m/s until the front left beam opens past 1.43 m. Stage 3 drives until the front beam reads 0.6 m. Stage 4 curves right again until the front right beam drops under 0.32 m. Stage 5 creeps at 0.1 m/s until the front beam reads 0.43 m, and stage 6 stops at the charger.
+
+```mermaid
+stateDiagram-v2
+    [*] --> S1
+    S1: Stage 1, forward at 0.5 m/s
+    S2: Stage 2, curve right at 0.3 m/s
+    S3: Stage 3, forward at 0.3 m/s
+    S4: Stage 4, curve right at 0.3 m/s
+    S5: Stage 5, creep forward at 0.1 m/s
+    S6: Stage 6, stopped at the charger
+    S1 --> S2: front beam 1.3 m or less
+    S2 --> S3: front left beam past 1.43 m
+    S3 --> S4: front beam 0.6 m or less
+    S4 --> S5: front right beam 0.32 m or less
+    S5 --> S6: front beam 0.43 m or less
+    S6 --> [*]
+```
+
+Two checks keep it safe. Every scan has to hold at least 316 readings, because the highest beam the node reads is index 315. A short scan is skipped and the robot stops. If no scan arrives for one second, the robot also stops and waits until scans come back. The landmark distances came from trial runs and from reading the logged laser data. Adding the three rear beams at 135, 180 and 225 degrees made the map log noticeably more complete.
 
 Every scan is written to laserData.csv, and each beam is converted into room coordinates using the robot's pose and written to laserMapData.csv, which plots as a map. The odometry callback logs the trajectory and the current speed so the whole run can be graphed.
 
@@ -57,6 +76,8 @@ Every scan is written to laserData.csv, and each beam is converted into room coo
 ![Robot trajectory from home to the charger, plotted from TrajData.csv](media/figures/robot-trajectory-to-charger.png)
 
 ## How to run it
+
+The screenshots of my runs show ROS2 Foxy, from the install path in the RViz window title.
 
 ### Python nodes
 
