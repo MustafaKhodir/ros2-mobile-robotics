@@ -114,7 +114,7 @@ The simulations below use a 2D simulator with a laser model, not Gazebo. The ROS
 
 All four with captions:
 
-https://github.com/user-attachments/assets/df618e0d-7ce8-4074-a843-5e4f4c39139e
+https://github.com/user-attachments/assets/60c4c5dc-ef9e-4536-bac7-5c4b4198fbcb
 
 The same video is in the repo as [ros2-mobile-robotics-demo.mp4](media/demo/ros2-mobile-robotics-demo.mp4) (92 s).
 
