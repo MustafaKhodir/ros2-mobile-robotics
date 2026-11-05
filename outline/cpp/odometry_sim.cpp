@@ -14,13 +14,20 @@
 // has the right wheel faster (6 and 8 cm/s) so it curves left. The two paths
 // are written to trajectory1.csv for plotting.
 //
-// Build and run:
-//   g++ odometry_sim.cpp -o odometry_sim
-//   ./odometry_sim
 #include <cmath>
 #include <iostream>
 #include <fstream>
+using namespace std;
+
 #define PI 3.14159265
+
+const int SIZE = 100;          // number of time steps
+const double wheelbase = 30;   // distance between the wheels in cm
+const double dt = 1;           // seconds per step
+
 // Fills the x, y and theta arrays for one robot from its two wheel speeds
-void robot_kinematics(double left_vel, double right_vel, double x[], double y[], double theta[]) { /* removed */ }
-int main(int argc, char **argv) { /* removed */ }
+void robot_kinematics(double left_vel, double right_vel, double x[], double y[], double theta[])
+{ /* removed */ }
+
+int main(int argc, char **argv)
+{ /* removed */ }
