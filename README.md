@@ -1,5 +1,3 @@
-<sub>Copyright 2026 Mustafa Khodir. All rights reserved. Photos, videos and designs may not be reused without permission.</sub>
-
 # ROS2 Mobile Robotics: TurtleBot Navigation and Odometry Simulation
 
 Four programs I wrote for the TurtleBot3 Burger, two in Python on ROS2 and two in C++. The Python nodes drive the real robot and its Gazebo twin: one traces a 1 m square from odometry alone, the other wanders an arena avoiding pillars with the laser scanner while Cartographer builds a SLAM map. The C++ side is a differential drive odometry simulation that plots two robots' paths and draws a room map, and a ROS2 node that steers the robot from its home corner to a charging station using laser landmarks.
