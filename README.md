@@ -1,6 +1,6 @@
 # ROS2 Mobile Robotics: TurtleBot Navigation and Odometry Simulation
 
-Four programs I wrote for the TurtleBot3 Burger, two in Python on ROS2 and two in C++. The Python nodes drive the real robot and its Gazebo twin: one traces a 1 m square from odometry alone, the other wanders an arena avoiding pillars with the laser scanner while Cartographer builds a SLAM map. The C++ side is a differential drive odometry simulation that plots two robots' paths and draws a room map, and a ROS2 node that steers the robot from its home corner to a charging station using laser landmarks.
+Five programs I wrote for the TurtleBot3 Burger, two in Python on ROS2 and three in C++. The Python nodes drive the real robot and its Gazebo twin: one traces a 1 m square from odometry alone, the other wanders an arena avoiding pillars with the laser scanner while Cartographer builds a SLAM map. The C++ side is a differential drive odometry simulation that plots two robots' paths, a program that draws the room map, and a ROS2 node that steers the robot from its home corner to a charging station using laser landmarks.
 
 ![The TurtleBot3 in the arena with the cardboard pillars it has to avoid](media/photos/turtlebot-in-the-arena.jpg)
 
@@ -79,8 +79,15 @@ Every scan is written to laserData.csv, and each beam is converted into room coo
 
 The source code is private. Selected parts are available to employers for technical review. Contact me at [mkhodir77@gmail.com](mailto:mkhodir77@gmail.com).
 
+### A working code sample
+
+[![tests](https://github.com/MustafaKhodir/ros2-mobile-robotics/actions/workflows/tests.yml/badge.svg)](https://github.com/MustafaKhodir/ros2-mobile-robotics/actions/workflows/tests.yml)
+
+[`sample/heading.py`](sample/heading.py) is the heading maths from the square path node, complete and runnable on its own: it turns the odometry quaternion into a heading in degrees and adds up how far the robot has turned, so a turn that crosses from 180 to -180 degrees still counts correctly. [`sample/test_heading.py`](sample/test_heading.py) checks it against known angles and turns, and GitHub runs those tests on every push.
+
 ## What's in this repo
 
+- `sample/` a complete, tested piece of the square path node's maths.
 - `outline/` outline files for the main programs: function names, structure and comments only. The working logic is in the private repository.
 - `media/photos/` the TurtleBot in the arena.
 - `media/figures/` the plots and screenshots of the runs.

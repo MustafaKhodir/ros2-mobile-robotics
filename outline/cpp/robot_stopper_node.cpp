@@ -24,15 +24,16 @@
 // with colcon. See the README for the steps.
 
 #include <chrono>
+#include <cmath>
+#include <fstream>
 #include <functional>
 #include <memory>
 #include <string>
-#include <fstream>
-#include <cmath>
+
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-#include "sensor_msgs/msg/laser_scan.hpp"
 #include "nav_msgs/msg/odometry.hpp"
+#include "sensor_msgs/msg/laser_scan.hpp"
 
 using namespace std::chrono_literals;
 using namespace std;
@@ -40,7 +41,7 @@ using namespace std;
 class Stopper : public rclcpp::Node
 {
 public:
-    // speeds I switch between, m/s forward and rad/s for turning
+    // Speeds I switch between, m/s forward and rad/s for turning
     constexpr const static double FORWARD_SPEED_LOW = 0.1;
     constexpr const static double FORWARD_SPEED_MIDDLE = 0.3;
     constexpr const static double FORWARD_SPEED_HIGH = 0.5;
@@ -58,12 +59,12 @@ public:
     void startMoving();
 
 private:
-    // where the robot starts in the room, metres
+    // Where the robot starts in the room, metres
     double PositionX = 0.3, PositionY = 0.3;
     double robotHeadAngle = 0.0;   // heading in radians, updated from odometry
     double robVelocity = 0.0;      // current forward speed, logged to VelData.csv
 
-    // laser distances that mark the change from one stage to the next, metres
+    // Laser distances that mark the change from one stage to the next, metres
     double laser_landmark1 = 1.3;
     double laser_landmark2 = 1.43;
     double laser_landmark3 = 0.60;
@@ -78,7 +79,7 @@ private:
     std::chrono::steady_clock::time_point lastScanTime;
     int laser_index = 0;    // counts scans so the log lines can be matched up
 
-    // one beam at each of eight directions round the robot
+    // One beam at each of eight directions round the robot
     double frontRange, backRange, mleftRange, bleftRange, leftRange, rightRange, brightRange, mrightRange;
     double leftAngle = M_PI / 2, mleftAngle = M_PI / 4, frontAngle = 0;
     double mrightAngle = -M_PI / 4, rightAngle = -M_PI / 2;

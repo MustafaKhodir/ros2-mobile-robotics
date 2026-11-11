@@ -14,9 +14,11 @@ class MyRobot(Node):
     def __init__(self):
         ...
 
+    # Keeps the newest scan and the time it arrived
     def scan_callback(self, msg):
         ...
 
+    # Keeps the newest position and converts the quaternion to a heading in degrees
     def odom_callback(self, msg):
         ...
 

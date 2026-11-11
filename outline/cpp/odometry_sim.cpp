@@ -15,8 +15,8 @@
 // are written to trajectory1.csv for plotting.
 //
 #include <cmath>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 using namespace std;
 
 #define PI 3.14159265
