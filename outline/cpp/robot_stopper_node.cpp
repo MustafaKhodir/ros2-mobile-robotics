@@ -60,16 +60,16 @@ public:
 
 private:
     // Where the robot starts in the room, metres
-    double PositionX = 0.3, PositionY = 0.3;
-    double robotHeadAngle = 0.0;   // heading in radians, updated from odometry
-    double robVelocity = 0.0;      // current forward speed, logged to VelData.csv
+    double positionX = 0.3, positionY = 0.3;
+    double robotHeading = 0.0;     // heading in radians, updated from odometry
+    double robotVelocity = 0.0;    // current forward speed, logged to VelData.csv
 
     // Laser distances that mark the change from one stage to the next, metres
-    double laser_landmark1 = 1.3;
-    double laser_landmark2 = 1.43;
-    double laser_landmark3 = 0.60;
-    double laser_landmark4 = 0.32;
-    double laser_landmark5 = 0.43;
+    static constexpr double LANDMARK_1 = 1.3;
+    static constexpr double LANDMARK_2 = 1.43;
+    static constexpr double LANDMARK_3 = 0.60;
+    static constexpr double LANDMARK_4 = 0.32;
+    static constexpr double LANDMARK_5 = 0.43;
 
     int stage = 1;          // where we are in the state machine
 
@@ -77,28 +77,40 @@ private:
     static constexpr double SCAN_TIMEOUT_S = 1.0;
     bool haveScan = false;
     std::chrono::steady_clock::time_point lastScanTime;
-    int laser_index = 0;    // counts scans so the log lines can be matched up
+    int scanCount = 0;      // counts scans so the log lines can be matched up
+
+    static constexpr int LOOP_RATE_HZ = 20;
+    static constexpr int WARN_THROTTLE_MS = 2000;
 
     // One beam at each of eight directions round the robot
-    double frontRange, backRange, mleftRange, bleftRange, leftRange, rightRange, brightRange, mrightRange;
-    double leftAngle = M_PI / 2, mleftAngle = M_PI / 4, frontAngle = 0;
-    double mrightAngle = -M_PI / 4, rightAngle = -M_PI / 2;
+    double frontRange, frontLeftRange, leftRange, backLeftRange;
+    double backRange, backRightRange, rightRange, frontRightRange;
+
+    // Beam directions used when placing the readings on the map, radians
+    static constexpr double FRONT_ANGLE = 0;
+    static constexpr double FRONT_LEFT_ANGLE = M_PI / 4;
+    static constexpr double LEFT_ANGLE = M_PI / 2;
+    static constexpr double BACK_LEFT_ANGLE = M_PI - M_PI / 4;
+    static constexpr double BACK_ANGLE = M_PI;
+    static constexpr double BACK_RIGHT_ANGLE = M_PI + M_PI / 4;
+    static constexpr double RIGHT_ANGLE = -M_PI / 2;
+    static constexpr double FRONT_RIGHT_ANGLE = -M_PI / 4;
 
     std::ofstream laserFile, robotTrajFile, robotVelFile, laserMapFile;
 
-    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
-    rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laserScan_;
-    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_;
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmdVelPub_;
+    rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scanSub_;
+    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odomSub_;
 
     void moveStop();
     void moveForward(double forwardSpeed);
-    void moveRight(double turn_right_speed);
-    void moveForwardRight(double forwardSpeed, double turn_right_speed);
+    void moveRight(double turnRightSpeed);
+    void moveForwardRight(double forwardSpeed, double turnRightSpeed);
     void scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr scan);
     double beamAt(const sensor_msgs::msg::LaserScan &scan, double angleRad);
     bool stageBeamUsable(double range);
     void odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom);
-    void transformMapPoint(std::ofstream &fp, double laserRange, double laserTh, double robotTh,
+    void transformMapPoint(std::ofstream &file, double laserRange, double laserTh, double robotTh,
                            double robotX, double robotY);
 };
 
@@ -111,11 +123,11 @@ void Stopper::moveForward(double forwardSpeed)
 { /* removed */ }
 
 // Turn on the spot, negative is to the right
-void Stopper::moveRight(double turn_right_speed)
+void Stopper::moveRight(double turnRightSpeed)
 { /* removed */ }
 
 // Drive and turn at the same time, which gives a curve
-void Stopper::moveForwardRight(double forwardSpeed, double turn_right_speed)
+void Stopper::moveForwardRight(double forwardSpeed, double turnRightSpeed)
 { /* removed */ }
 
 // Keeps the robot's position and heading up to date and logs them
@@ -139,7 +151,7 @@ void Stopper::scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr scan)
 { /* removed */ }
 
 // Converts one laser beam into an x y point in the room and writes it out
-void Stopper::transformMapPoint(ofstream &fp, double laserRange, double laserTh, double robotTh,
+void Stopper::transformMapPoint(ofstream &file, double laserRange, double laserTh, double robotTh,
                                 double robotX, double robotY)
 { /* removed */ }
 

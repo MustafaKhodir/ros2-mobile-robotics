@@ -21,10 +21,10 @@ class MyRobot(Node):
     def start_turn(self, corner_step):
         ...
 
-    # Adds up how far the heading has moved since the turn started. Each step
-    # is wrapped into -180 to 180, so crossing from 180 to -180 still counts
-    # as a small turn. The corner is done once the robot has turned 90 degrees,
-    # wherever the heading started.
+    # Adds up how far the heading has moved since the turn started. Each
+    # tick's change is wrapped into -180 to 180, so crossing from 180 to -180
+    # still counts as a small turn. The corner is done once the robot has
+    # turned 90 degrees, wherever the heading started.
     def turn_done(self):
         ...
 

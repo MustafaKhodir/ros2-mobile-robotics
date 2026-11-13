@@ -19,15 +19,15 @@
 #include <iostream>
 using namespace std;
 
-#define PI 3.14159265
+const double PI = 3.14159265;
 
-const int SIZE = 100;          // number of time steps
-const double wheelbase = 30;   // distance between the wheels in cm
-const double dt = 1;           // seconds per step
+const int NUM_STEPS = 100;      // number of time steps
+const double WHEELBASE = 30;    // distance between the wheels in cm
+const double DT = 1;            // seconds per step
 
 // Fills the x, y and theta arrays for one robot from its two wheel speeds
 void robot_kinematics(double left_vel, double right_vel, double x[], double y[], double theta[])
 { /* removed */ }
 
-int main(int argc, char **argv)
+int main()
 { /* removed */ }
