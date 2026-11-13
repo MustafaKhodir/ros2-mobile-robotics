@@ -104,7 +104,6 @@ private:
 
     void moveStop();
     void moveForward(double forwardSpeed);
-    void moveRight(double turnRightSpeed);
     void moveForwardRight(double forwardSpeed, double turnRightSpeed);
     void scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr scan);
     double beamAt(const sensor_msgs::msg::LaserScan &scan, double angleRad);
@@ -120,10 +119,6 @@ void Stopper::moveStop()
 
 // Straight ahead at the given speed
 void Stopper::moveForward(double forwardSpeed)
-{ /* removed */ }
-
-// Turn on the spot, negative is to the right
-void Stopper::moveRight(double turnRightSpeed)
 { /* removed */ }
 
 // Drive and turn at the same time, which gives a curve
